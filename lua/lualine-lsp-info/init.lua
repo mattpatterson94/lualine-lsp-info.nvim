@@ -42,6 +42,13 @@ M.config = {
   -- Cache duration in seconds
   cache_duration = 30,
 
+  -- Lualine integration settings
+  lualine = {
+    enabled = true,      -- Auto-register with lualine
+    section = "lualine_x", -- Which section to add to
+    position = 1,        -- Position in the section (1 = first)
+  },
+
   -- Resolved LSP configurations (built-in + custom + overrides)
   lsps = {},
 }
@@ -190,7 +197,7 @@ function M.setup(opts)
 
   -- Extract global settings (non-LSP specific options)
   local global_opts = {}
-  local reserved_keys = { "custom", "thresholds", "colors", "cache_duration" }
+  local reserved_keys = { "custom", "thresholds", "colors", "cache_duration", "lualine" }
 
   for key, value in pairs(opts) do
     if vim.tbl_contains(reserved_keys, key) then
@@ -203,6 +210,23 @@ function M.setup(opts)
 
   -- Resolve LSP configurations (built-in + custom + overrides)
   M.config.lsps = resolve_lsp_configs(opts)
+
+  -- Auto-register with lualine if enabled
+  if M.config.lualine.enabled then
+    vim.schedule(function()
+      local ok, lualine = pcall(require, "lualine")
+      if ok then
+        local config = lualine.get_config()
+        local section = config.sections[M.config.lualine.section]
+
+        if section then
+          -- Insert at the specified position
+          table.insert(section, M.config.lualine.position, M.component())
+          lualine.setup(config)
+        end
+      end
+    end)
+  end
 end
 
 return M

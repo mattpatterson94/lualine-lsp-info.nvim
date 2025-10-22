@@ -44,23 +44,58 @@ Lualine component for monitoring LSP server memory usage and displaying active L
 
 ### Basic Setup
 
-Add the component to your lualine configuration:
+The plugin automatically adds itself to your lualine statusline when you install it. No additional configuration needed!
 
 ```lua
 {
-  "nvim-lualine/lualine.nvim",
-  opts = function(_, opts)
-    local lsp_info = require("lualine-lsp-info")
-
-    -- Add combined LSP info component
-    table.insert(opts.sections.lualine_x, lsp_info.component())
-
-    return opts
-  end,
+  "mattpatterson94/lualine-lsp-info.nvim",
+  dependencies = { "nvim-lualine/lualine.nvim" },
+  opts = {},
 }
 ```
 
 This will display: `📦 vtsls (512M)`, `⚡ ts-tools (256M)`, or `🚀 tsgo (1.2G)` depending on which LSP is active.
+
+By default, the component is added to the `lualine_x` section (typically on the right side). You can customize this behavior:
+
+```lua
+{
+  "mattpatterson94/lualine-lsp-info.nvim",
+  dependencies = { "nvim-lualine/lualine.nvim" },
+  opts = {
+    lualine = {
+      enabled = true,           -- Set to false to disable auto-registration
+      section = "lualine_x",    -- Which lualine section to add to
+      position = 1,             -- Position within the section (1 = first)
+    },
+  },
+}
+```
+
+### Manual Setup (Optional)
+
+If you prefer to manually control where the component appears, disable auto-registration and add it yourself:
+
+```lua
+-- In your lualine-lsp-info config
+{
+  "mattpatterson94/lualine-lsp-info.nvim",
+  dependencies = { "nvim-lualine/lualine.nvim" },
+  opts = {
+    lualine = { enabled = false }, -- Disable auto-registration
+  },
+}
+
+-- In your lualine config
+{
+  "nvim-lualine/lualine.nvim",
+  opts = function(_, opts)
+    local lsp_info = require("lualine-lsp-info")
+    table.insert(opts.sections.lualine_x, lsp_info.component())
+    return opts
+  end,
+}
+```
 
 ### Customizing Built-in LSPs
 
@@ -116,6 +151,13 @@ This will display as `🦀 rust (256M)` and `🐹 gopls (128M)`.
   "mattpatterson94/lualine-lsp-info.nvim",
   dependencies = { "nvim-lualine/lualine.nvim" },
   opts = {
+    -- Lualine integration (optional, these are the defaults)
+    lualine = {
+      enabled = true,
+      section = "lualine_x",
+      position = 1,
+    },
+
     -- Customize built-in LSP
     vtsls = { icon = "📘" },
 
@@ -214,6 +256,13 @@ Each LSP (built-in or custom) supports these options:
 
 ```lua
 {
+  -- Lualine integration (auto-registration)
+  lualine = {
+    enabled = true,        -- Auto-register with lualine (set to false for manual setup)
+    section = "lualine_x", -- Which lualine section to add to
+    position = 1,          -- Position within the section (1 = first)
+  },
+
   -- Memory thresholds in MB
   thresholds = {
     high = 2048,   -- Above this shows warning and red color
@@ -252,12 +301,13 @@ The main component displays LSP name and memory usage in a single entry with col
 
 ## How it works
 
-1. Resolves LSP configuration from built-in LSPs, custom LSPs, and user overrides
-2. Checks if any configured LSP client is attached to the current buffer
-3. Uses `ps aux` with LSP-specific process patterns to measure memory usage
-4. Caches memory results for the configured duration (default 30s) for performance
-5. Displays only in filetypes configured for the active LSP
-6. Color codes the entire component based on memory thresholds
+1. On setup, automatically registers itself with lualine (can be disabled for manual setup)
+2. Resolves LSP configuration from built-in LSPs, custom LSPs, and user overrides
+3. Checks if any configured LSP client is attached to the current buffer
+4. Uses `ps aux` with LSP-specific process patterns to measure memory usage
+5. Caches memory results for the configured duration (default 30s) for performance
+6. Displays only in filetypes configured for the active LSP
+7. Color codes the entire component based on memory thresholds
 
 ## Use Cases
 
