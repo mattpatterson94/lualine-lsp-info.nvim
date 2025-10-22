@@ -2,6 +2,9 @@
 
 Lualine component for monitoring LSP server memory usage and displaying active LSP client names in a single, clean format.
 
+<img width="404" height="162" alt="image" src="https://github.com/user-attachments/assets/49f7a93b-b79d-467d-ac64-2f89763513aa" />
+
+
 ## Features
 
 - **Combined Display** - Shows LSP name and memory in one component: `📦 vtsls (512M)`
